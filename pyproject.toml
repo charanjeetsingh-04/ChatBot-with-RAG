@@ -1,0 +1,81 @@
+[project]
+name = "rag-chatbot"
+version = "0.1.0"
+description = "Production-quality RAG chatbot with citations, swappable providers, and a Streamlit UI."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "krishjosh4479" }]
+dependencies = [
+    # Web / API
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "python-multipart>=0.0.12",
+    # Config
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "python-dotenv>=1.0",
+    # LLM providers
+    "anthropic>=0.40",
+    # Embeddings
+    "sentence-transformers>=3.3",
+    # Vector store
+    "chromadb>=0.5.20",
+    # Document loaders
+    "pypdf>=5.1",
+    "python-docx>=1.1",
+    "markdown-it-py>=3.0",
+    # Hybrid search (phase 8)
+    "rank-bm25>=0.2.2",
+    # Frontend
+    "streamlit>=1.40",
+    "httpx>=0.27",
+    # Logging
+    "structlog>=24.4",
+    "google-genai>=2.3.0",
+]
+
+[project.optional-dependencies]
+openai = ["openai>=1.55"]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "httpx>=0.27",
+    "mypy>=1.13",
+    "ruff>=0.8",
+    "types-requests",
+    "fpdf2>=2.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "D"]
+ignore = ["D100", "D104", "D203", "D213"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D"]
+# Prompt text is sent verbatim to the model; reflowing would alter tokenization.
+"app/generation/prompts.py" = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["app"]
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["chromadb.*", "sentence_transformers.*", "rank_bm25.*", "pypdf.*", "docx.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
